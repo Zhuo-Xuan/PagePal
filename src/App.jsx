@@ -12,7 +12,7 @@ import { useLocalStorage } from "./hooks/useLocalStorage.js";
 export default function App() {
   const [page, setPage] = useState("home");
   const [streak] = useState(12);
-  const [ongoing, setOngoing] = useState(ONGOING_INIT);
+  const [ongoing, setOngoing] = useLocalStorage("pagepal_ongoing", ONGOING_INIT);
   const [activeBook, setActiveBook] = useState(null);
   const [bookText, setBookText] = useState(null);
   const [textLoading, setTextLoading] = useState(false);
