@@ -8,7 +8,7 @@ export default function Nav({ page, setPage, streak }) {
       <div className="nav-brand" onClick={() => setPage("home")}>
         <Lantern streak={streak} size={40} />
         <div>
-          <div className="nav-brand-title">Reading Nook</div>
+          <div className="nav-brand-title">PagePal</div>
           <div className="nav-brand-sub">{streak}-day streak</div>
         </div>
       </div>
