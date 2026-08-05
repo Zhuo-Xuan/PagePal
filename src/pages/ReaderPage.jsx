@@ -34,10 +34,12 @@ export default function ReaderPage({
   const lastPageIndex = Math.max(pages.length - 1, 0);
 
   function goNext() {
+    console.log("goNext called", { pageIndex, lastPageIndex, book: book.title });
     if (pageIndex < lastPageIndex) {
       const next = pageIndex + 1;
       setPageIndex(next);
       setPopover(null);
+      console.log("calling onProgress", next / lastPageIndex);
       onProgress?.(book, next / lastPageIndex);
     }
   }
