@@ -4,8 +4,10 @@ import HomePage from "./pages/HomePage.jsx";
 import ReaderPage from "./pages/ReaderPage.jsx";
 import ChatPage from "./pages/ChatPage.jsx";
 import SettingsPage from "./pages/SettingsPage.jsx";
-import { ONGOING_INIT, DEFAULT_CUSTOMIZATION } from "./data/constants.js";
+import PastConversationsPage from "./pages/PastConversationsPage.jsx";
+import { ONGOING_INIT, DEFAULT_CUSTOMIZATION, MODE_OPENERS } from "./data/constants.js";
 import { fetchBookText } from "./api/gutenberg.js";
+import { useLocalStorage } from "./hooks/useLocalStorage.js";
 
 export default function App() {
   const [page, setPage] = useState("home");
@@ -17,6 +19,9 @@ export default function App() {
   const [ambient, setAmbient] = useState("silence");
   const [chatState, setChatState] = useState(null);
   const [customization, setCustomization] = useState(DEFAULT_CUSTOMIZATION);
+  const [conversations, setConversations] = useLocalStorage("pagepal_conversations", []);
+  const [notesByBook, setNotesByBook] = useLocalStorage("pagepal_notes", {});
+  const [notesOpen, setNotesOpen] = useState(false);
 
   async function openBook(book) {
     setActiveBook(book);
@@ -24,33 +29,53 @@ export default function App() {
     setBookText(null);
     setTextLoading(true);
     const paragraphs = await fetchBookText(book);
-    setBookText(paragraphs); // null → ReaderPage falls back to ALICE_TEXT
+    setBookText(paragraphs);
     setTextLoading(false);
   }
 
   function selectMode(mode, snippet) {
-    setChatState({ mode, snippet });
+    const id = `conv-${Date.now()}`;
+    const initialMessages = [{ role: "assistant", text: MODE_OPENERS[mode](snippet) }];
+    setConversations((prev) => [
+      ...prev,
+      {
+        id,
+        bookId: activeBook.id,
+        bookTitle: activeBook.title,
+        mode,
+        snippet,
+        messages: initialMessages,
+        updatedAt: Date.now(),
+      },
+    ]);
+    setChatState({ mode, snippet, conversationId: id, initialMessages });
     setPage("chat");
+  }
+
+  function updateConversation(id, messages) {
+    setConversations((prev) =>
+      prev.map((c) => (c.id === id ? { ...c, messages, updatedAt: Date.now() } : c))
+    );
   }
 
   function updateProgress(book, progress) {
     setOngoing((prev) => {
       const exists = prev.find((entry) => entry.book.id === book.id);
       if (exists) {
-        return prev.map((entry) =>
-          entry.book.id === book.id ? { ...entry, progress } : entry
-        );
+        return prev.map((entry) => (entry.book.id === book.id ? { ...entry, progress } : entry));
       }
       return [...prev, { book, progress }];
     });
   }
 
+  function updateNotes(bookId, value) {
+    setNotesByBook((prev) => ({ ...prev, [bookId]: value }));
+  }
+
   return (
     <>
       <Nav page={page} setPage={setPage} streak={streak} />
-      {page === "home" && (
-        <HomePage streak={streak} ongoing={ongoing} openBook={openBook} />
-      )}
+      {page === "home" && <HomePage streak={streak} ongoing={ongoing} openBook={openBook} />}
       {page === "reader" && activeBook && (
         <ReaderPage
           book={activeBook}
@@ -62,14 +87,28 @@ export default function App() {
           onSelectMode={selectMode}
           onProgress={updateProgress}
           back={() => setPage("home")}
+          onOpenConversations={() => setPage("conversations")}
+          notesOpen={notesOpen}
+          onToggleNotes={() => setNotesOpen((v) => !v)}
+          notesValue={notesByBook[activeBook.id]}
+          onNotesChange={(value) => updateNotes(activeBook.id, value)}
         />
       )}
       {page === "chat" && chatState && activeBook && (
         <ChatPage
+          key={chatState.conversationId}
           mode={chatState.mode}
           snippet={chatState.snippet}
           book={activeBook}
+          initialMessages={chatState.initialMessages}
+          onUpdate={(messages) => updateConversation(chatState.conversationId, messages)}
           back={() => setPage("reader")}
+        />
+      )}
+      {page === "conversations" && (
+        <PastConversationsPage
+          conversations={conversations}
+          back={() => setPage(activeBook ? "reader" : "home")}
         />
       )}
       {page === "settings" && (
