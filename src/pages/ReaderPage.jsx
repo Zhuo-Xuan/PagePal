@@ -8,12 +8,15 @@ import {
   ALICE_TEXT, AMBIENTS, MODES, SURFACES, FONTS, PARAGRAPHS_PER_PAGE,
 } from "../data/constants.js";
 import { useReadingAnalytics } from "../hooks/useReadingAnalytics.js";
+import ReaderSidebar from "../components/ReaderSidebar.jsx";
+import NotesWidget from "../components/NotesWidget.jsx";
 
 const AMBIENT_ICONS = { silence: VolumeX, rain: CloudRain, forest: Trees, cafe: Coffee };
 const MODE_ICONS = { discuss: MessageCircle, quiz: Brain, character: Users };
 
 export default function ReaderPage({
   book, text, loading, customization, ambient, setAmbient, onSelectMode, onProgress, back,
+  onOpenConversations, notesOpen, onToggleNotes, notesValue, onNotesChange,
 }) {
   const [popover, setPopover] = useState(null);
   const [pageIndex, setPageIndex] = useState(0);
@@ -75,9 +78,7 @@ export default function ReaderPage({
         <button className="btn-ghost" onClick={back}><ArrowLeft size={16} /></button>
         <div className="reader-title">{book.title}</div>
         <div className="reader-author">by {book.author}</div>
-        {!loading && (
-          <div className="reader-page-count">page {pageIndex + 1} / {pages.length}</div>
-        )}
+        {!loading && <div className="reader-page-count">page {pageIndex + 1} / {pages.length}</div>}
       </div>
 
       <div className="reader-scroll">
@@ -86,17 +87,11 @@ export default function ReaderPage({
           className="reader-surface"
           onMouseUp={handleMouseUp}
           style={{
-            background: surface.bg,
-            color: surface.text,
-            fontFamily: FONTS[customization.font].stack,
-            fontSize: customization.fontSize,
+            background: surface.bg, color: surface.text,
+            fontFamily: FONTS[customization.font].stack, fontSize: customization.fontSize,
           }}
         >
-          {loading ? (
-            <p>Loading the book...</p>
-          ) : (
-            currentPage.map((p, i) => <p key={i}>{p}</p>)
-          )}
+          {loading ? <p>Loading the book...</p> : currentPage.map((p, i) => <p key={i}>{p}</p>)}
 
           {popover && (
             <div className="selection-popover" style={{ left: popover.x, top: popover.y - 12 }}>
@@ -104,9 +99,7 @@ export default function ReaderPage({
                 const Icon = MODE_ICONS[m.id];
                 return (
                   <button
-                    key={m.id}
-                    className="selection-btn"
-                    title={m.blurb}
+                    key={m.id} className="selection-btn" title={m.blurb}
                     onMouseDown={(e) => e.preventDefault()}
                     onClick={() => handleSelectMode(m.id, popover.text)}
                   >
@@ -115,11 +108,7 @@ export default function ReaderPage({
                   </button>
                 );
               })}
-              <button
-                className="selection-close"
-                onMouseDown={(e) => e.preventDefault()}
-                onClick={() => setPopover(null)}
-              >
+              <button className="selection-close" onMouseDown={(e) => e.preventDefault()} onClick={() => setPopover(null)}>
                 <X size={14} />
               </button>
             </div>
@@ -132,10 +121,7 @@ export default function ReaderPage({
               <ChevronLeft size={16} /> Back
             </button>
             <div className="reader-progress-track">
-              <div
-                className="reader-progress-fill"
-                style={{ width: `${(pageIndex / lastPageIndex) * 100}%` }}
-              />
+              <div className="reader-progress-fill" style={{ width: `${(pageIndex / lastPageIndex) * 100}%` }} />
             </div>
             <button className="btn-ghost" onClick={goNext} disabled={pageIndex === lastPageIndex}>
               Next <ChevronRight size={16} />
@@ -143,9 +129,7 @@ export default function ReaderPage({
           </div>
         )}
 
-        <div className="reader-hint">
-          Select any text to discuss it, get quizzed, or talk to a character.
-        </div>
+        <div className="reader-hint">Select any text to discuss it, get quizzed, or talk to a character.</div>
       </div>
 
       <div className="ambient-bar">
@@ -163,6 +147,16 @@ export default function ReaderPage({
           );
         })}
       </div>
+
+      <ReaderSidebar
+        onOpenConversations={onOpenConversations}
+        onToggleNotes={onToggleNotes}
+        notesOpen={notesOpen}
+      />
+
+      {notesOpen && (
+        <NotesWidget book={book} value={notesValue} onChange={onNotesChange} onClose={onToggleNotes} />
+      )}
     </div>
   );
 }
