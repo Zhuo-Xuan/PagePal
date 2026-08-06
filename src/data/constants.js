@@ -1,4 +1,19 @@
+export const CATALOG = [
+  { id: "alice", title: "Alice's Adventures in Wonderland", author: "Lewis Carroll", accent: "#E8A33D" },
+  { id: "oz", title: "The Wonderful Wizard of Oz", author: "L. Frank Baum", accent: "#6B9080" },
+  { id: "peterpan", title: "Peter Pan", author: "J. M. Barrie", accent: "#8C6FAE" },
+  { id: "jungle", title: "The Jungle Book", author: "Rudyard Kipling", accent: "#B5654A" },
+  { id: "princess", title: "A Little Princess", author: "Frances Hodgson Burnett", accent: "#C97BAE" },
+  { id: "anne", title: "Anne of Green Gables", author: "L. M. Montgomery", accent: "#5B8A9A" },
+];
 
+// Shelf stores the full book object alongside progress, not just an id — this way
+// books opened via Gutendex search (not in local CATALOG) show up correctly too.
+export const ONGOING_INIT = [
+  { book: CATALOG[0], progress: 0.32 }, // Alice
+  { book: CATALOG[1], progress: 0.61 }, // Oz
+  { book: CATALOG[3], progress: 0.12 }, // Jungle Book
+];
 
 export const DEFAULT_CUSTOMIZATION = { font: "lexend", fontSize: 18, surface: "parchment" };
 
