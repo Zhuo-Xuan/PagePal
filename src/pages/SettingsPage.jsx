@@ -64,9 +64,9 @@ export default function SettingsPage({ customization, setCustomization }) {
         <SectionLabel>Reading aids</SectionLabel>
         <div className="option-list">
           <OptionRow
-            active={customization.boldFirstWord}
-            onClick={() => setCustomization((c) => ({ ...c, boldFirstWord: !c.boldFirstWord }))}
-            title="Bold the first word of each paragraph"
+            active={customization.boldFirstSentence}
+            onClick={() => setCustomization((c) => ({ ...c, boldFirstSentence: !c.boldFirstSentence }))}
+            title="Bold the first sentence of each paragraph"
             sub="Helps you re-find your place after a break in focus"
             icon={Bold}
           />
@@ -83,7 +83,7 @@ export default function SettingsPage({ customization, setCustomization }) {
           fontSize: customization.fontSize,
         }}
       >
-        {renderParagraph(ALICE_TEXT[0], customization.boldFirstWord)}
+        {renderParagraph(ALICE_TEXT[0], customization.boldFirstSentence)}
       </div>
 
       <div className="insight-card">
