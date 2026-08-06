@@ -1,4 +1,4 @@
-# Reading Nook
+# PagePal
 
 A reading companion for ADHD minors — search Project Gutenberg books, read with customizable settings, ambient sound, and AI-powered text discussions.
 
