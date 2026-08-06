@@ -15,7 +15,12 @@ export const ONGOING_INIT = [
   { book: CATALOG[3], progress: 0.12 }, // Jungle Book
 ];
 
-export const DEFAULT_CUSTOMIZATION = { font: "lexend", fontSize: 18, surface: "parchment" };
+export const DEFAULT_CUSTOMIZATION = {
+  font: "lexend",
+  fontSize: 18,
+  surface: "parchment",
+  boldFirstSentence: false,
+};
 
 // Fallback text used only when a book's real text fails to load.
 export const ALICE_TEXT = [
