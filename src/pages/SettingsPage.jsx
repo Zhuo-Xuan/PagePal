@@ -1,8 +1,9 @@
-import { Sparkles } from "lucide-react";
+import { Sparkles, Bold } from "lucide-react";
 import SectionLabel from "../components/SectionLabel.jsx";
 import OptionRow from "../components/OptionRow.jsx";
 import { ALICE_TEXT, FONTS, SURFACES } from "../data/constants.js";
 import { getEfficiencyInsight } from "../hooks/useReadingAnalytics.js";
+import { renderParagraph } from "../utils/textFormatting.jsx";
 
 export default function SettingsPage({ customization, setCustomization }) {
   const insight = getEfficiencyInsight();
@@ -59,6 +60,19 @@ export default function SettingsPage({ customization, setCustomization }) {
         />
       </div>
 
+      <div style={{ marginBottom: 28 }}>
+        <SectionLabel>Reading aids</SectionLabel>
+        <div className="option-list">
+          <OptionRow
+            active={customization.boldFirstWord}
+            onClick={() => setCustomization((c) => ({ ...c, boldFirstWord: !c.boldFirstWord }))}
+            title="Bold the first word of each paragraph"
+            sub="Helps you re-find your place after a break in focus"
+            icon={Bold}
+          />
+        </div>
+      </div>
+
       <SectionLabel>Live preview</SectionLabel>
       <div
         className="settings-preview"
@@ -69,7 +83,7 @@ export default function SettingsPage({ customization, setCustomization }) {
           fontSize: customization.fontSize,
         }}
       >
-        {ALICE_TEXT[0]}
+        {renderParagraph(ALICE_TEXT[0], customization.boldFirstWord)}
       </div>
 
       <div className="insight-card">
