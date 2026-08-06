@@ -58,19 +58,26 @@ export default function App() {
     );
   }
 
-  function updateProgress(book, progress) {
+  // Stores both the exact page (so reopening resumes where you left off)
+  // and a progress fraction (for the shelf's progress bar).
+  function updateProgress(book, pageIndex, lastPageIndex) {
+    const progress = lastPageIndex > 0 ? pageIndex / lastPageIndex : 0;
     setOngoing((prev) => {
       const exists = prev.find((entry) => entry.book.id === book.id);
       if (exists) {
-        return prev.map((entry) => (entry.book.id === book.id ? { ...entry, progress } : entry));
+        return prev.map((entry) =>
+          entry.book.id === book.id ? { ...entry, progress, pageIndex } : entry
+        );
       }
-      return [...prev, { book, progress }];
+      return [...prev, { book, progress, pageIndex }];
     });
   }
 
   function updateNotes(bookId, value) {
     setNotesByBook((prev) => ({ ...prev, [bookId]: value }));
   }
+
+  const activeShelfEntry = ongoing.find((entry) => entry.book.id === activeBook?.id);
 
   return (
     <>
@@ -86,6 +93,7 @@ export default function App() {
           setAmbient={setAmbient}
           onSelectMode={selectMode}
           onProgress={updateProgress}
+          initialPageIndex={activeShelfEntry?.pageIndex ?? 0}
           back={() => setPage("home")}
           onOpenConversations={() => setPage("conversations")}
           notesOpen={notesOpen}
