@@ -34,10 +34,12 @@ export default function ReaderPage({
   const lastPageIndex = Math.max(pages.length - 1, 0);
 
   // Real book text loads asynchronously after mount, which changes the page
-  // count — clamp so a saved pageIndex never points past the loaded book's end.
+  // count. Skip clamping while still loading: the fallback text is much
+  // shorter than most real books, and clamping against it would wrongly
+  // truncate a saved page before the real text has arrived. ← FIX #1
   useEffect(() => {
-     if (loading) return;
-     setPageIndex((p) => Math.min(p, lastPageIndex));
+    if (loading) return;
+    setPageIndex((p) => Math.min(p, lastPageIndex));
   }, [lastPageIndex, loading]);
 
   const currentPage = pages[pageIndex] ?? [];
@@ -106,7 +108,8 @@ export default function ReaderPage({
             <p>Loading the book...</p>
           ) : (
             currentPage.map((p, i) => (
-              <p key={i}>{renderParagraph(p, customization.boldFirstWord)}</p>
+              // ← FIX #2: was `{p}`, now runs it through renderParagraph
+              <p key={i}>{renderParagraph(p, customization.boldFirstSentence)}</p>
             ))
           )}
 
