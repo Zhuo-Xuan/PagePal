@@ -36,8 +36,9 @@ export default function ReaderPage({
   // Real book text loads asynchronously after mount, which changes the page
   // count — clamp so a saved pageIndex never points past the loaded book's end.
   useEffect(() => {
-    setPageIndex((p) => Math.min(p, lastPageIndex));
-  }, [lastPageIndex]);
+     if (loading) return;
+     setPageIndex((p) => Math.min(p, lastPageIndex));
+  }, [lastPageIndex, loading]);
 
   const currentPage = pages[pageIndex] ?? [];
 
