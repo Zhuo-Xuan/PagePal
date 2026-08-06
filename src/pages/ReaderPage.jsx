@@ -16,11 +16,11 @@ const AMBIENT_ICONS = { silence: VolumeX, rain: CloudRain, forest: Trees, cafe: 
 const MODE_ICONS = { discuss: MessageCircle, quiz: Brain, character: Users };
 
 export default function ReaderPage({
-  book, text, loading, customization, ambient, setAmbient, onSelectMode, onProgress, back,
-  onOpenConversations, notesOpen, onToggleNotes, notesValue, onNotesChange,
+  book, text, loading, customization, ambient, setAmbient, onSelectMode, onProgress,
+  initialPageIndex = 0, back, onOpenConversations, notesOpen, onToggleNotes, notesValue, onNotesChange,
 }) {
   const [popover, setPopover] = useState(null);
-  const [pageIndex, setPageIndex] = useState(0);
+  const [pageIndex, setPageIndex] = useState(initialPageIndex);
   const containerRef = useRef(null);
   const surface = SURFACES[customization.surface];
   const analytics = useReadingAnalytics(customization);
@@ -31,23 +31,30 @@ export default function ReaderPage({
   for (let i = 0; i < allParagraphs.length; i += PARAGRAPHS_PER_PAGE) {
     pages.push(allParagraphs.slice(i, i + PARAGRAPHS_PER_PAGE));
   }
-  const currentPage = pages[pageIndex] ?? [];
   const lastPageIndex = Math.max(pages.length - 1, 0);
 
+  // Real book text loads asynchronously after mount, which changes the page
+  // count — clamp so a saved pageIndex never points past the loaded book's end.
+  useEffect(() => {
+    setPageIndex((p) => Math.min(p, lastPageIndex));
+  }, [lastPageIndex]);
+
+  const currentPage = pages[pageIndex] ?? [];
+
   function goNext() {
-    console.log("goNext called", { pageIndex, lastPageIndex, book: book.title });
     if (pageIndex < lastPageIndex) {
       const next = pageIndex + 1;
       setPageIndex(next);
       setPopover(null);
-      console.log("calling onProgress", next / lastPageIndex);
-      onProgress?.(book, next / lastPageIndex);
+      onProgress?.(book, next, lastPageIndex);
     }
   }
   function goPrev() {
     if (pageIndex > 0) {
-      setPageIndex(pageIndex - 1);
+      const next = pageIndex - 1;
+      setPageIndex(next);
       setPopover(null);
+      onProgress?.(book, next, lastPageIndex);
     }
   }
 
@@ -94,7 +101,13 @@ export default function ReaderPage({
             fontFamily: FONTS[customization.font].stack, fontSize: customization.fontSize,
           }}
         >
-          {loading ? <p>Loading the book...</p> : currentPage.map((p, i) => <p key={i}>{p}</p>)}
+          {loading ? (
+            <p>Loading the book...</p>
+          ) : (
+            currentPage.map((p, i) => (
+              <p key={i}>{renderParagraph(p, customization.boldFirstWord)}</p>
+            ))
+          )}
 
           {popover && (
             <div className="selection-popover" style={{ left: popover.x, top: popover.y - 12 }}>
