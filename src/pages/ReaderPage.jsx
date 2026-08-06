@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   ArrowLeft, ChevronLeft, ChevronRight,
   VolumeX, CloudRain, Trees, Coffee,
@@ -10,6 +10,7 @@ import {
 import { useReadingAnalytics } from "../hooks/useReadingAnalytics.js";
 import ReaderSidebar from "../components/ReaderSidebar.jsx";
 import NotesWidget from "../components/NotesWidget.jsx";
+import { renderParagraph } from "../utils/textFormatting.jsx";
 
 const AMBIENT_ICONS = { silence: VolumeX, rain: CloudRain, forest: Trees, cafe: Coffee };
 const MODE_ICONS = { discuss: MessageCircle, quiz: Brain, character: Users };
