@@ -1,3 +1,4 @@
+// src/App.jsx
 import { useState } from "react";
 import Nav from "./components/Nav.jsx";
 import HomePage from "./pages/HomePage.jsx";
@@ -12,15 +13,18 @@ import { useLocalStorage } from "./hooks/useLocalStorage.js";
 export default function App() {
   const [page, setPage] = useState("home");
   const [streak] = useState(12);
-  const [ongoing, setOngoing] = useState(ONGOING_INIT);
+  
+  // ✅ 改用 useLocalStorage 持久化
+  const [ongoing, setOngoing] = useLocalStorage("pagepal_ongoing", ONGOING_INIT);
+  const [customization, setCustomization] = useLocalStorage("pagepal_customization", DEFAULT_CUSTOMIZATION);
+  const [conversations, setConversations] = useLocalStorage("pagepal_conversations", []);
+  const [notesByBook, setNotesByBook] = useLocalStorage("pagepal_notes", {});
+
   const [activeBook, setActiveBook] = useState(null);
   const [bookText, setBookText] = useState(null);
   const [textLoading, setTextLoading] = useState(false);
   const [ambient, setAmbient] = useState("silence");
   const [chatState, setChatState] = useState(null);
-  const [customization, setCustomization] = useState(DEFAULT_CUSTOMIZATION);
-  const [conversations, setConversations] = useLocalStorage("pagepal_conversations", []);
-  const [notesByBook, setNotesByBook] = useLocalStorage("pagepal_notes", {});
   const [notesOpen, setNotesOpen] = useState(false);
 
   async function openBook(book) {
