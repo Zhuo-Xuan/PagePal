@@ -1,4 +1,5 @@
-import { useState, useRef } from "react";
+// src/pages/ReaderPage.jsx
+import { useState, useRef, useEffect } from "react";
 import {
   ArrowLeft, ChevronLeft, ChevronRight,
   VolumeX, CloudRain, Trees, Coffee,
@@ -9,6 +10,8 @@ import {
 } from "../data/constants.js";
 import { useReadingAnalytics } from "../hooks/useReadingAnalytics.js";
 import { useAmbientSound } from "../hooks/useAmbientSound.js";
+import { useLocalStorage } from "../hooks/useLocalStorage.js";
+import { renderParagraph } from "../utils/textFormatting.jsx";
 import ReaderSidebar from "../components/ReaderSidebar.jsx";
 import NotesWidget from "../components/NotesWidget.jsx";
 
@@ -19,8 +22,13 @@ export default function ReaderPage({
   book, text, loading, customization, ambient, setAmbient, onSelectMode, onProgress, back,
   onOpenConversations, notesOpen, onToggleNotes, notesValue, onNotesChange,
 }) {
+  // ✅ 用 useLocalStorage 保存页码
+  const [pageIndex, setPageIndex] = useLocalStorage(
+    `pagepal_page_${book.id}`,
+    0
+  );
+
   const [popover, setPopover] = useState(null);
-  const [pageIndex, setPageIndex] = useState(0);
   const containerRef = useRef(null);
   const surface = SURFACES[customization.surface];
   const analytics = useReadingAnalytics(customization);
@@ -35,12 +43,17 @@ export default function ReaderPage({
   const currentPage = pages[pageIndex] ?? [];
   const lastPageIndex = Math.max(pages.length - 1, 0);
 
+  // ✅ 页码变化时保存进度
+  useEffect(() => {
+    if (pages.length > 0) {
+      onProgress?.(book, pageIndex / lastPageIndex);
+    }
+  }, [pageIndex]);
+
   function goNext() {
     if (pageIndex < lastPageIndex) {
-      const next = pageIndex + 1;
-      setPageIndex(next);
+      setPageIndex(pageIndex + 1);
       setPopover(null);
-      onProgress?.(book, next / lastPageIndex);
     }
   }
   function goPrev() {
@@ -97,7 +110,14 @@ export default function ReaderPage({
             fontFamily: FONTS[customization.font].stack, fontSize: customization.fontSize,
           }}
         >
-          {loading ? <p>Loading the book...</p> : currentPage.map((p, i) => <p key={i}>{p}</p>)}
+          {loading ? (
+            <p>Loading the book...</p>
+          ) : (
+            // ✅ 使用 renderParagraph 渲染每一段
+            currentPage.map((p, i) => (
+              <p key={i}>{renderParagraph(p, customization.boldFirstSentence)}</p>
+            ))
+          )}
 
           {popover && (
             <div className="selection-popover" style={{ left: popover.x, top: popover.y - 12 }}>
@@ -154,6 +174,7 @@ export default function ReaderPage({
         })}
       </div>
 
+      {/* 音量控制 */}
       <div className="ambient-volume-control">
         <Volume2 size={14} style={{ opacity: 0.6 }} />
         <input
