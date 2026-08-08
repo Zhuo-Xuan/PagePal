@@ -3,14 +3,26 @@ export async function sendChatMessage({ mode, snippet, bookTitle, history, messa
   try {
     const response = await fetch("/api/chat", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ mode, snippet, bookTitle, history, message, turnCount }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        mode,
+        snippet,
+        bookTitle,
+        history,
+        message,
+        turnCount,
+      }),
     });
+
     const data = await response.json();
+
     if (!response.ok) {
       console.error("API error:", data.error);
       return fallbackReply(mode, turnCount, bookTitle);
     }
+
     return data.reply;
   } catch (err) {
     console.error("Request failed:", err);
