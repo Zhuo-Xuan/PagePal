@@ -1,29 +1,31 @@
-import { useState, useRef, useEffect } from "react";
+// src/pages/ReaderPage.jsx
+import { useState, useRef } from "react";
 import {
   ArrowLeft, ChevronLeft, ChevronRight,
   VolumeX, CloudRain, Trees, Coffee,
-  MessageCircle, Brain, Users, X,
+  MessageCircle, Brain, Users, X, Volume2,
 } from "lucide-react";
 import {
   ALICE_TEXT, AMBIENTS, MODES, SURFACES, FONTS, PARAGRAPHS_PER_PAGE,
 } from "../data/constants.js";
 import { useReadingAnalytics } from "../hooks/useReadingAnalytics.js";
+import { useAmbientSound } from "../hooks/useAmbientSound.js";
 import ReaderSidebar from "../components/ReaderSidebar.jsx";
 import NotesWidget from "../components/NotesWidget.jsx";
-import { renderParagraph } from "../utils/textFormatting.jsx";
 
 const AMBIENT_ICONS = { silence: VolumeX, rain: CloudRain, forest: Trees, cafe: Coffee };
 const MODE_ICONS = { discuss: MessageCircle, quiz: Brain, character: Users };
 
 export default function ReaderPage({
-  book, text, loading, customization, ambient, setAmbient, onSelectMode, onProgress,
-  initialPageIndex = 0, back, onOpenConversations, notesOpen, onToggleNotes, notesValue, onNotesChange,
+  book, text, loading, customization, ambient, setAmbient, onSelectMode, onProgress, back,
+  onOpenConversations, notesOpen, onToggleNotes, notesValue, onNotesChange,
 }) {
   const [popover, setPopover] = useState(null);
-  const [pageIndex, setPageIndex] = useState(initialPageIndex);
+  const [pageIndex, setPageIndex] = useState(0);
   const containerRef = useRef(null);
   const surface = SURFACES[customization.surface];
   const analytics = useReadingAnalytics(customization);
+  const { isPlaying, resume, volume, setVolume } = useAmbientSound(ambient);
 
   const allParagraphs = text && text.length > 0 ? text : ALICE_TEXT;
 
@@ -31,33 +33,21 @@ export default function ReaderPage({
   for (let i = 0; i < allParagraphs.length; i += PARAGRAPHS_PER_PAGE) {
     pages.push(allParagraphs.slice(i, i + PARAGRAPHS_PER_PAGE));
   }
-  const lastPageIndex = Math.max(pages.length - 1, 0);
-
-  // Real book text loads asynchronously after mount, which changes the page
-  // count. Skip clamping while still loading: the fallback text is much
-  // shorter than most real books, and clamping against it would wrongly
-  // truncate a saved page before the real text has arrived. ← FIX #1
-  useEffect(() => {
-    if (loading) return;
-    setPageIndex((p) => Math.min(p, lastPageIndex));
-  }, [lastPageIndex, loading]);
-
   const currentPage = pages[pageIndex] ?? [];
+  const lastPageIndex = Math.max(pages.length - 1, 0);
 
   function goNext() {
     if (pageIndex < lastPageIndex) {
       const next = pageIndex + 1;
       setPageIndex(next);
       setPopover(null);
-      onProgress?.(book, next, lastPageIndex);
+      onProgress?.(book, next / lastPageIndex);
     }
   }
   function goPrev() {
     if (pageIndex > 0) {
-      const next = pageIndex - 1;
-      setPageIndex(next);
+      setPageIndex(pageIndex - 1);
       setPopover(null);
-      onProgress?.(book, next, lastPageIndex);
     }
   }
 
@@ -85,8 +75,12 @@ export default function ReaderPage({
     window.getSelection()?.removeAllRanges();
   }
 
+  function handlePageClick() {
+    resume();
+  }
+
   return (
-    <div className="page-full">
+    <div className="page-full" onClick={handlePageClick}>
       <div className="reader-header">
         <button className="btn-ghost" onClick={back}><ArrowLeft size={16} /></button>
         <div className="reader-title">{book.title}</div>
@@ -104,14 +98,7 @@ export default function ReaderPage({
             fontFamily: FONTS[customization.font].stack, fontSize: customization.fontSize,
           }}
         >
-          {loading ? (
-            <p>Loading the book...</p>
-          ) : (
-            currentPage.map((p, i) => (
-              // ← FIX #2: was `{p}`, now runs it through renderParagraph
-              <p key={i}>{renderParagraph(p, customization.boldFirstSentence)}</p>
-            ))
-          )}
+          {loading ? <p>Loading the book...</p> : currentPage.map((p, i) => <p key={i}>{p}</p>)}
 
           {popover && (
             <div className="selection-popover" style={{ left: popover.x, top: popover.y - 12 }}>
@@ -166,6 +153,23 @@ export default function ReaderPage({
             </button>
           );
         })}
+      </div>
+
+      {/* 音量控制 */}
+      <div className="ambient-volume-control">
+        <Volume2 size={14} style={{ opacity: 0.6 }} />
+        <input
+          type="range"
+          min={0}
+          max={1}
+          step={0.05}
+          value={volume}
+          onChange={(e) => setVolume(parseFloat(e.target.value))}
+          className="ambient-volume-slider"
+        />
+        <span style={{ fontSize: 12, opacity: 0.6, minWidth: 30 }}>
+          {Math.round(volume * 100)}%
+        </span>
       </div>
 
       <ReaderSidebar
