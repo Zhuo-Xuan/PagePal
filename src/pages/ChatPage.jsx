@@ -1,4 +1,3 @@
-// src/pages/ChatPage.jsx
 import { useState, useRef, useEffect } from "react";
 import { ArrowLeft, BookOpen, MessageCircle, Send, Sparkles } from "lucide-react";
 import { MODES, CHAT_TURN_LIMIT } from "../data/constants.js";
@@ -7,7 +6,7 @@ import { generateIllustration } from "../api/seedream.js";
 
 const MODE_ICONS = { discuss: MessageCircle, quiz: MessageCircle, character: MessageCircle };
 
-export default function ChatPage({ mode, snippet, book, initialMessages, onUpdate, back }) {
+export default function ChatPage({ mode, snippet, book, initialMessages, conversationId, onUpdate, back }) {
   const [messages, setMessages] = useState(initialMessages);
   const [input, setInput] = useState("");
   const [illustrationUrl, setIllustrationUrl] = useState(null);
@@ -23,12 +22,21 @@ export default function ChatPage({ mode, snippet, book, initialMessages, onUpdat
   }, [messages]);
 
   useEffect(() => {
-    onUpdate?.(messages);
-  }, [messages]);
-
-  useEffect(() => {
-    generateIllustration(snippet, book.title).then(setIllustrationUrl);
+    generateIllustration(snippet, book.title).then((url) => {
+      setIllustrationUrl(url);
+      // 立即保存插图 URL 到对话
+      if (conversationId) {
+        onUpdate?.(conversationId, messages, url);
+      }
+    });
   }, [snippet, book.title]);
+
+  // 每次 messages 变化时保存
+  useEffect(() => {
+    if (conversationId && messages.length > 0) {
+      onUpdate?.(conversationId, messages, illustrationUrl);
+    }
+  }, [messages, conversationId, illustrationUrl]);
 
   async function send() {
     if (!input.trim() || sending) return;
@@ -47,10 +55,15 @@ export default function ChatPage({ mode, snippet, book, initialMessages, onUpdat
         turnCount: nextCount,
       });
 
-      setMessages((m) => [...m, userMsg, { role: "assistant", text: reply }]);
+      const newMessages = [...messages, userMsg, { role: "assistant", text: reply }];
+      setMessages(newMessages);
+      // 保存到 localStorage
+      onUpdate?.(conversationId, newMessages, illustrationUrl);
     } catch (err) {
       console.error("Chat error:", err);
-      setMessages((m) => [...m, userMsg, { role: "assistant", text: "Sorry, something went wrong. Please try again." }]);
+      const newMessages = [...messages, userMsg, { role: "assistant", text: "Sorry, something went wrong. Please try again." }];
+      setMessages(newMessages);
+      onUpdate?.(conversationId, newMessages, illustrationUrl);
     } finally {
       setSending(false);
     }
