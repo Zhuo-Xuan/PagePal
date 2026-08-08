@@ -9,7 +9,12 @@ export default async function handler(req, res) {
 
     const apiKey = process.env.VITE_DOUBAO_API_KEY;
     const model = process.env.VITE_DOUBAO_MODEL || "doubao-seed-character-250115";
-    const baseUrl = "https://ark.cn-beijing.volces.com/api/v3/chat/completions";
+    const baseUrl = process.env.VITE_DOUBAO_BASE_URL || "https://ark.cn-beijing.volces.com/api/v3/chat/completions";
+
+    if (!apiKey) {
+      console.error("API Key is missing!");
+      return res.status(500).json({ error: "API Key not configured" });
+    }
 
     const systemPrompt = buildPrompt(mode, snippet, bookTitle, turnCount);
     const messages = [
@@ -25,29 +30,38 @@ export default async function handler(req, res) {
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model,
-        messages,
+        model: model,
+        messages: messages,
         temperature: 0.7,
         max_tokens: 300,
       }),
     });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Doubao API error:", response.status, errorText);
+      return res.status(500).json({ error: `API error: ${response.status}` });
+    }
 
     const data = await response.json();
     const reply = data.choices?.[0]?.message?.content || "I didn't catch that. Try again?";
 
     res.status(200).json({ reply });
   } catch (err) {
-    res.status(500).json({ error: "Server error" });
+    console.error("Handler error:", err);
+    res.status(500).json({ error: err.message || "Server error" });
   }
 }
 
 function buildPrompt(mode, snippet, bookTitle, turnCount) {
   const prompts = {
-    discuss: `You are a reading companion. Discuss this passage: "${snippet}" from "${bookTitle}". Keep replies short.`,
-    quiz: `You are a quiz partner. Ask one question about: "${snippet}". Keep it short.`,
-    character: `You are a character from "${bookTitle}". Reply in character about: "${snippet}". Keep it short.`,
+    discuss: `You are a reading companion. Discuss this passage: "${snippet}" from "${bookTitle}". Keep replies short and thought-provoking.`,
+    quiz: `You are a quiz partner. Ask one question about this passage: "${snippet}". Keep it short.`,
+    character: `You are a character from "${bookTitle}". Reply in character about: "${snippet}". Keep it short and vivid.`,
   };
   let prompt = prompts[mode] || prompts.discuss;
-  if (turnCount >= 9) prompt += " Gently suggest they continue reading.";
+  if (turnCount >= 9) {
+    prompt += " Gently suggest they continue reading.";
+  }
   return prompt;
 }
