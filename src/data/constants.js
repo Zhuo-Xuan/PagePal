@@ -9,11 +9,7 @@ export const CATALOG = [
 
 // Shelf stores the full book object alongside progress, not just an id — this way
 // books opened via Gutendex search (not in local CATALOG) show up correctly too.
-export const ONGOING_INIT = [
-  { book: CATALOG[0], progress: 0.32 }, // Alice
-  { book: CATALOG[1], progress: 0.61 }, // Oz
-  { book: CATALOG[3], progress: 0.12 }, // Jungle Book
-];
+export const ONGOING_INIT = [];
 
 export const DEFAULT_CUSTOMIZATION = {
   font: "lexend",
