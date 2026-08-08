@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 
 const AMBIENT_AUDIO = {
-  rain: "https://cdn.pixabay.com/download/audio/2022/02/22/audio_d03e5f4d0c.mp3",
-  forest: "https://cdn.pixabay.com/download/audio/2022/03/10/audio_cdf8b5e2a6.mp3",
-  cafe: "https://cdn.pixabay.com/download/audio/2022/05/27/audio_0ec5e8c1f6.mp3",
+  rain: "/sounds/rain.mp3",
+  forest: "/sounds/forest.mp3",
+  cafe: "/sounds/drink.mp3",
   silence: null,
 };
 
