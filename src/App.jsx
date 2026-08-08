@@ -9,10 +9,11 @@ import PastConversationsPage from "./pages/PastConversationsPage.jsx";
 import { ONGOING_INIT, DEFAULT_CUSTOMIZATION, MODE_OPENERS } from "./data/constants.js";
 import { fetchBookText } from "./api/gutenberg.js";
 import { useLocalStorage } from "./hooks/useLocalStorage.js";
+import { useStreak } from "./hooks/useStreak.js";
 
 export default function App() {
   const [page, setPage] = useState("home");
-  const [streak] = useState(12);
+  const streak = useStreak();
   
   // ✅ 改用 useLocalStorage 持久化
   const [ongoing, setOngoing] = useLocalStorage("pagepal_ongoing", ONGOING_INIT);
