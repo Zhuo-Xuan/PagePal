@@ -1,4 +1,3 @@
-// src/App.jsx
 import { useState } from "react";
 import Nav from "./components/Nav.jsx";
 import HomePage from "./pages/HomePage.jsx";
@@ -14,8 +13,6 @@ import { useStreak } from "./hooks/useStreak.js";
 export default function App() {
   const [page, setPage] = useState("home");
   const streak = useStreak();
-  
-  // ✅ 改用 useLocalStorage 持久化
   const [ongoing, setOngoing] = useLocalStorage("pagepal_ongoing", ONGOING_INIT);
   const [customization, setCustomization] = useLocalStorage("pagepal_customization", DEFAULT_CUSTOMIZATION);
   const [conversations, setConversations] = useLocalStorage("pagepal_conversations", []);
