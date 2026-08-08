@@ -21,7 +21,7 @@ export async function generateIllustration(snippet, bookTitle) {
       body: JSON.stringify({
         model: SEEDREAM_MODEL,
         prompt: prompt,
-        size: "1024x512",
+        size: "2048x2048",
         n: 1,
       }),
     });
