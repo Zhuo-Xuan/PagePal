@@ -24,14 +24,12 @@ export default function ChatPage({ mode, snippet, book, initialMessages, convers
   useEffect(() => {
     generateIllustration(snippet, book.title).then((url) => {
       setIllustrationUrl(url);
-      // 立即保存插图 URL 到对话
       if (conversationId) {
         onUpdate?.(conversationId, messages, url);
       }
     });
   }, [snippet, book.title]);
 
-  // 每次 messages 变化时保存
   useEffect(() => {
     if (conversationId && messages.length > 0) {
       onUpdate?.(conversationId, messages, illustrationUrl);
@@ -57,7 +55,6 @@ export default function ChatPage({ mode, snippet, book, initialMessages, convers
 
       const newMessages = [...messages, userMsg, { role: "assistant", text: reply }];
       setMessages(newMessages);
-      // 保存到 localStorage
       onUpdate?.(conversationId, newMessages, illustrationUrl);
     } catch (err) {
       console.error("Chat error:", err);
