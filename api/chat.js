@@ -9,7 +9,11 @@ export default async function handler(req, res) {
 
     const apiKey = process.env.VITE_DOUBAO_API_KEY;
     const model = process.env.VITE_DOUBAO_MODEL || "doubao-seed-character-250115";
-    const baseUrl = process.env.VITE_DOUBAO_BASE_URL || "https://ark.cn-beijing.volces.com/api/v3/chat/completions";
+    const baseUrl = "https://ark.cn-beijing.volces.com/api/v3/chat/completions";
+
+    console.log("API Key exists:", !!apiKey);
+    console.log("Model:", model);
+    console.log("Message length:", message?.length);
 
     if (!apiKey) {
       console.error("API Key is missing!");
@@ -22,6 +26,8 @@ export default async function handler(req, res) {
       ...(history || []),
       { role: "user", content: message },
     ];
+
+    console.log("Sending request to Doubao...");
 
     const response = await fetch(baseUrl, {
       method: "POST",
@@ -37,10 +43,12 @@ export default async function handler(req, res) {
       }),
     });
 
+    console.log("Response status:", response.status);
+
     if (!response.ok) {
       const errorText = await response.text();
       console.error("Doubao API error:", response.status, errorText);
-      return res.status(500).json({ error: `API error: ${response.status}` });
+      return res.status(500).json({ error: `API error: ${response.status} - ${errorText}` });
     }
 
     const data = await response.json();
