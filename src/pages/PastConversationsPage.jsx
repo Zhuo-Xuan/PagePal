@@ -38,6 +38,15 @@ export default function PastConversationsPage({ conversations, back }) {
               </div>
               {isOpen && (
                 <div className="conversation-transcript">
+                  {c.illustrationUrl && (
+                    <div className="conversation-illustration">
+                      <img 
+                        src={c.illustrationUrl} 
+                        alt="Illustration" 
+                        style={{ maxWidth: "100%", borderRadius: 8, marginBottom: 12 }} 
+                      />
+                    </div>
+                  )}
                   {c.messages.map((m, i) => (
                     <div key={i} className={`chat-bubble ${m.role}`}>{m.text}</div>
                   ))}
