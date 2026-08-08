@@ -7,22 +7,19 @@ export const CATALOG = [
   { id: "anne", title: "Anne of Green Gables", author: "L. M. Montgomery", accent: "#5B8A9A" },
 ];
 
-// Shelf stores the full book object alongside progress, not just an id — this way
-// books opened via Gutendex search (not in local CATALOG) show up correctly too.
 export const ONGOING_INIT = [];
 
 export const DEFAULT_CUSTOMIZATION = {
   font: "lexend",
   fontSize: 18,
   surface: "parchment",
-  boldFirstSentence: false,
+  boldFirstSentence: true,
 };
 
-// Fallback text used only when a book's real text fails to load.
 export const ALICE_TEXT = [
-  "Alice was beginning to get very tired of sitting by her sister on the bank, and of having nothing to do: once or twice she had peeped into the book her sister was reading, but it had no pictures or conversations in it, \u201cand what is the use of a book,\u201d thought Alice, \u201cwithout pictures or conversations?\u201d",
+  "Alice was beginning to get very tired of sitting by her sister on the bank, and of having nothing to do: once or twice she had peeped into the book her sister was reading, but it had no pictures or conversations in it, \"and what is the use of a book,\" thought Alice, \"without pictures or conversations?\"",
   "So she was considering in her own mind (as well as she could, for the hot day made her feel very sleepy and stupid), whether the pleasure of making a daisy-chain would be worth the trouble of getting up and picking the daisies, when suddenly a White Rabbit with pink eyes ran close by her.",
-  "There was nothing so very remarkable in that; nor did Alice think it so very much out of the way to hear the Rabbit say to itself, \u201cOh dear! Oh dear! I shall be late!\u201d But when the Rabbit actually took a watch out of its waistcoat-pocket, and looked at it, and then hurried on, Alice started to her feet, for it flashed across her mind that she had never before seen a rabbit with either a waistcoat-pocket, or a watch to take out of it.",
+  "There was nothing so very remarkable in that; nor did Alice think it so very much out of the way to hear the Rabbit say to itself, \"Oh dear! Oh dear! I shall be late!\" But when the Rabbit actually took a watch out of its waistcoat-pocket, and looked at it, and then hurried on, Alice started to her feet, for it flashed across her mind that she had never before seen a rabbit with either a waistcoat-pocket, or a watch to take out of it.",
   "Burning with curiosity, she ran across the field after it, and fortunately was just in time to see it pop down a large rabbit-hole under the hedge. In another moment down went Alice after it, never once considering how in the world she was to get out again.",
   "The rabbit-hole went straight on like a tunnel for some way, and then dipped suddenly down, so suddenly that Alice had not a moment to think about stopping herself before she found herself falling down what seemed to be a very deep well.",
 ];
@@ -53,10 +50,7 @@ export const FONTS = {
   dyslexic: { label: "Open Dyslexic-style", stack: "'Comic Sans MS', 'Comic Sans', sans-serif", note: "Wide, distinct letterforms" },
 };
 
-// How many paragraphs make up one reader "page" — smaller = less overwhelming chunks.
 export const PARAGRAPHS_PER_PAGE = 4;
-
-// Turns before the assistant nudges the user back to the book.
 export const CHAT_TURN_LIMIT = 10;
 
 export const MODE_OPENERS = {
