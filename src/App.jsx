@@ -1,3 +1,4 @@
+// src/App.jsx
 import { useState } from "react";
 import Nav from "./components/Nav.jsx";
 import HomePage from "./pages/HomePage.jsx";
@@ -12,7 +13,7 @@ import { useLocalStorage } from "./hooks/useLocalStorage.js";
 export default function App() {
   const [page, setPage] = useState("home");
   const [streak] = useState(12);
-  const [ongoing, setOngoing] = useLocalStorage("pagepal_ongoing", ONGOING_INIT);
+  const [ongoing, setOngoing] = useState(ONGOING_INIT);
   const [activeBook, setActiveBook] = useState(null);
   const [bookText, setBookText] = useState(null);
   const [textLoading, setTextLoading] = useState(false);
@@ -45,6 +46,7 @@ export default function App() {
         mode,
         snippet,
         messages: initialMessages,
+        illustrationUrl: null,
         updatedAt: Date.now(),
       },
     ]);
@@ -52,32 +54,29 @@ export default function App() {
     setPage("chat");
   }
 
-  function updateConversation(id, messages) {
+  function updateConversation(id, messages, illustrationUrl) {
     setConversations((prev) =>
-      prev.map((c) => (c.id === id ? { ...c, messages, updatedAt: Date.now() } : c))
+      prev.map((c) =>
+        c.id === id
+          ? { ...c, messages, illustrationUrl: illustrationUrl || c.illustrationUrl, updatedAt: Date.now() }
+          : c
+      )
     );
   }
 
-  // Stores both the exact page (so reopening resumes where you left off)
-  // and a progress fraction (for the shelf's progress bar).
-  function updateProgress(book, pageIndex, lastPageIndex) {
-    const progress = lastPageIndex > 0 ? pageIndex / lastPageIndex : 0;
+  function updateProgress(book, progress) {
     setOngoing((prev) => {
       const exists = prev.find((entry) => entry.book.id === book.id);
       if (exists) {
-        return prev.map((entry) =>
-          entry.book.id === book.id ? { ...entry, progress, pageIndex } : entry
-        );
+        return prev.map((entry) => (entry.book.id === book.id ? { ...entry, progress } : entry));
       }
-      return [...prev, { book, progress, pageIndex }];
+      return [...prev, { book, progress }];
     });
   }
 
   function updateNotes(bookId, value) {
     setNotesByBook((prev) => ({ ...prev, [bookId]: value }));
   }
-
-  const activeShelfEntry = ongoing.find((entry) => entry.book.id === activeBook?.id);
 
   return (
     <>
@@ -93,7 +92,6 @@ export default function App() {
           setAmbient={setAmbient}
           onSelectMode={selectMode}
           onProgress={updateProgress}
-          initialPageIndex={activeShelfEntry?.pageIndex ?? 0}
           back={() => setPage("home")}
           onOpenConversations={() => setPage("conversations")}
           notesOpen={notesOpen}
@@ -109,7 +107,8 @@ export default function App() {
           snippet={chatState.snippet}
           book={activeBook}
           initialMessages={chatState.initialMessages}
-          onUpdate={(messages) => updateConversation(chatState.conversationId, messages)}
+          conversationId={chatState.conversationId}
+          onUpdate={updateConversation}
           back={() => setPage("reader")}
         />
       )}
