@@ -11,23 +11,43 @@ export default async function handler(req, res) {
     const model = process.env.VITE_DOUBAO_MODEL || "doubao-seed-character-250115";
     const baseUrl = "https://ark.cn-beijing.volces.com/api/v3/chat/completions";
 
-    console.log("API Key exists:", !!apiKey);
-    console.log("Model:", model);
-    console.log("Message length:", message?.length);
-
     if (!apiKey) {
-      console.error("API Key is missing!");
       return res.status(500).json({ error: "API Key not configured" });
     }
 
+    if (!message || message.trim() === "") {
+      return res.status(400).json({ error: "Message is empty" });
+    }
+
+    // ✅ 只保留最后 5 条历史记录，避免消息太长
+    const recentHistory = (history || []).slice(-5);
+
     const systemPrompt = buildPrompt(mode, snippet, bookTitle, turnCount);
     const messages = [
-      { role: "system", content: systemPrompt },
-      ...(history || []),
-      { role: "user", content: message },
+      { role: "system", content: systemPrompt || "" },
+      ...recentHistory.map((msg) => ({
+        role: msg.role === "assistant" ? "assistant" : "user",
+        content: msg.content || msg.text || "",
+      })),
+      { role: "user", content: message.trim() },
     ];
 
-    console.log("Sending request to Doubao...");
+    // ✅ 过滤掉空消息
+    const filteredMessages = messages.filter((m) => m.content && m.content.trim() !== "");
+
+    if (filteredMessages.length === 0) {
+      return res.status(400).json({ error: "No valid messages" });
+    }
+
+    const requestBody = {
+      model: model,
+      messages: filteredMessages,
+      temperature: 0.7,
+      max_tokens: 300,
+    };
+
+    // 把请求体打印到日志
+    console.log("Sending:", JSON.stringify(requestBody));
 
     const response = await fetch(baseUrl, {
       method: "POST",
@@ -35,25 +55,24 @@ export default async function handler(req, res) {
         "Content-Type": "application/json",
         Authorization: `Bearer ${apiKey}`,
       },
-      body: JSON.stringify({
-        model: model,
-        messages: messages,
-        temperature: 0.7,
-        max_tokens: 300,
-      }),
+      body: JSON.stringify(requestBody),
     });
 
+    const responseText = await response.text();
+
+    // 把响应也打印到日志
     console.log("Response status:", response.status);
+    console.log("Response body:", responseText);
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Doubao API error:", response.status, errorText);
-      return res.status(500).json({ error: `API error: ${response.status} - ${errorText}` });
+      return res.status(500).json({ 
+        error: `API error: ${response.status}`,
+        detail: responseText 
+      });
     }
 
-    const data = await response.json();
+    const data = JSON.parse(responseText);
     const reply = data.choices?.[0]?.message?.content || "I didn't catch that. Try again?";
-
     res.status(200).json({ reply });
   } catch (err) {
     console.error("Handler error:", err);
