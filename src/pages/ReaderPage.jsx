@@ -1,4 +1,3 @@
-// src/pages/ReaderPage.jsx
 import { useState, useRef } from "react";
 import {
   ArrowLeft, ChevronLeft, ChevronRight,
@@ -155,7 +154,6 @@ export default function ReaderPage({
         })}
       </div>
 
-      {/* 音量控制 */}
       <div className="ambient-volume-control">
         <Volume2 size={14} style={{ opacity: 0.6 }} />
         <input
