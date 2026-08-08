@@ -1,3 +1,4 @@
+// src/pages/ChatPage.jsx
 import { useState, useRef, useEffect } from "react";
 import { ArrowLeft, BookOpen, MessageCircle, Send, Sparkles } from "lucide-react";
 import { MODES, CHAT_TURN_LIMIT } from "../data/constants.js";
@@ -23,7 +24,7 @@ export default function ChatPage({ mode, snippet, book, initialMessages, onUpdat
 
   useEffect(() => {
     onUpdate?.(messages);
-  }, [messages]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [messages]);
 
   useEffect(() => {
     generateIllustration(snippet, book.title).then(setIllustrationUrl);
@@ -36,18 +37,31 @@ export default function ChatPage({ mode, snippet, book, initialMessages, onUpdat
     setInput("");
     setSending(true);
 
-    const reply = await sendChatMessage({
-      mode, snippet, bookTitle: book.title, history: messages, message: userMsg.text, turnCount: nextCount,
-    });
+    try {
+      const reply = await sendChatMessage({
+        mode,
+        snippet,
+        bookTitle: book.title,
+        history: messages,
+        message: userMsg.text,
+        turnCount: nextCount,
+      });
 
-    setMessages((m) => [...m, userMsg, { role: "assistant", text: reply }]);
-    setSending(false);
+      setMessages((m) => [...m, userMsg, { role: "assistant", text: reply }]);
+    } catch (err) {
+      console.error("Chat error:", err);
+      setMessages((m) => [...m, userMsg, { role: "assistant", text: "Sorry, something went wrong. Please try again." }]);
+    } finally {
+      setSending(false);
+    }
   }
 
   return (
     <div className="page-full">
       <div className="chat-header">
-        <button className="btn-ghost" onClick={back}><ArrowLeft size={16} /></button>
+        <button className="btn-ghost" onClick={back}>
+          <ArrowLeft size={16} />
+        </button>
         <ModeIcon size={16} color="var(--lantern)" />
         <div className="reader-title">{MODES.find((m) => m.id === mode)?.label}</div>
         <div className={`chat-turn-count${nudged ? " nudged" : ""}`}>
