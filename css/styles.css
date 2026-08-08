@@ -798,6 +798,53 @@ nav.app-nav {
   cursor: default;
 }
 
+/* volume control */
+.ambient-volume-control {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  padding: 8px 16px;
+  border-radius: 30px;
+  color: white;
+  z-index: 20;
+  font-size: 14px;
+}
+
+.ambient-volume-slider {
+  width: 80px;
+  height: 4px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+  outline: none;
+}
+
+.ambient-volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #E8A33D;
+  cursor: pointer;
+}
+
+.ambient-volume-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #E8A33D;
+  cursor: pointer;
+  border: none;
+}
+
 @media (max-width: 640px) {
   .settings-grid { grid-template-columns: 1fr; }
   nav.app-nav { padding: 12px 16px; }
