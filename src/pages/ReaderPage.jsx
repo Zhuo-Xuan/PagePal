@@ -22,7 +22,7 @@ export default function ReaderPage({
   book, text, loading, customization, ambient, setAmbient, onSelectMode, onProgress, back,
   onOpenConversations, notesOpen, onToggleNotes, notesValue, onNotesChange,
 }) {
-  // ✅ 用 useLocalStorage 保存页码
+  // save page number
   const [pageIndex, setPageIndex] = useLocalStorage(
     `pagepal_page_${book.id}`,
     0
@@ -43,7 +43,7 @@ export default function ReaderPage({
   const currentPage = pages[pageIndex] ?? [];
   const lastPageIndex = Math.max(pages.length - 1, 0);
 
-  // ✅ 页码变化时保存进度
+  // progress bar
   useEffect(() => {
     if (pages.length > 0) {
       onProgress?.(book, pageIndex / lastPageIndex);
@@ -113,7 +113,7 @@ export default function ReaderPage({
           {loading ? (
             <p>Loading the book...</p>
           ) : (
-            // ✅ 使用 renderParagraph 渲染每一段
+            // customization
             currentPage.map((p, i) => (
               <p key={i}>{renderParagraph(p, customization.boldFirstSentence)}</p>
             ))
@@ -174,7 +174,7 @@ export default function ReaderPage({
         })}
       </div>
 
-      {/* 音量控制 */}
+      {/* volume */}
       <div className="ambient-volume-control">
         <Volume2 size={14} style={{ opacity: 0.6 }} />
         <input
