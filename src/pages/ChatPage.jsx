@@ -11,6 +11,7 @@ export default function ChatPage({ mode, snippet, book, initialMessages, convers
   const [input, setInput] = useState("");
   const [illustrationUrl, setIllustrationUrl] = useState(null);
   const [sending, setSending] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
   const scrollRef = useRef(null);
 
   const turnCount = messages.filter((m) => m.role === "user").length;
@@ -21,15 +22,28 @@ export default function ChatPage({ mode, snippet, book, initialMessages, convers
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages]);
 
+  
   useEffect(() => {
+    let isMounted = true;
+    setIsGenerating(true);
+
     generateIllustration(snippet, book.title).then((url) => {
+      if (!isMounted) return;
       setIllustrationUrl(url);
+      setIsGenerating(false);
       if (conversationId) {
         onUpdate?.(conversationId, messages, url);
       }
     });
+
+    
+    return () => {
+      isMounted = false;
+      setIsGenerating(false);
+    };
   }, [snippet, book.title]);
 
+  
   useEffect(() => {
     if (conversationId && messages.length > 0) {
       onUpdate?.(conversationId, messages, illustrationUrl);
@@ -81,7 +95,12 @@ export default function ChatPage({ mode, snippet, book, initialMessages, convers
 
       <div className="chat-illustration-wrap">
         <div className="chat-illustration">
-          {illustrationUrl ? (
+          {isGenerating ? (
+            <>
+              <div className="spinner" style={{ width: 30, height: 30, border: "3px solid #E8A33D", borderTop: "3px solid transparent", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
+              <div className="chat-illustration-title">Generating illustration...</div>
+            </>
+          ) : illustrationUrl ? (
             <img src={illustrationUrl} alt="Scene from selected passage" />
           ) : (
             <>
