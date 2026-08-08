@@ -1,4 +1,3 @@
-// src/App.jsx
 import { useState } from "react";
 import Nav from "./components/Nav.jsx";
 import HomePage from "./pages/HomePage.jsx";
