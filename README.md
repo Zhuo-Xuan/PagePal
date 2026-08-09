@@ -8,12 +8,12 @@ A reading companion for ADHD minors — search Project Gutenberg books, read wit
 reading companion/
 ├── index.html              # Entry point
 ├── css/
-│   └── styles.css          # All styles (like personal website)
+│   └── styles.css          # All styles 
 ├── src/
 │   ├── main.jsx            # React bootstrap
 │   ├── App.jsx             # Page routing & global state
 │   ├── data/
-│   │   └── constants.js    # Mock catalog, fonts, surfaces, modes
+│   │   └── constants.js    # fonts, surfaces, modes
 │   ├── api/
 │   │   ├── gutenberg.js    # Project Gutenberg search (Gutendex)
 │   │   ├── doubao.js       # Text chat — fill in your API key
@@ -31,6 +31,7 @@ reading companion/
 |------------|-------------------------|----------------------------------------------|
 | Home       | `pages/HomePage.jsx`    | Streak, search bar, ongoing books            |
 | Reader     | `pages/ReaderPage.jsx`  | Full text, text selection, ambient music     |
+| Past Conversation| `pages/PastConversation.jsx`| View past chats, store images and text|
 | Chat       | `pages/ChatPage.jsx`    | AI chat + illustration from selected text    |
 | Settings   | `pages/SettingsPage.jsx`| Font, size, background, efficiency insights  |
 
