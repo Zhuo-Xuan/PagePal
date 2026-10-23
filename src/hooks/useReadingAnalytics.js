@@ -2,16 +2,7 @@ import { useEffect, useRef } from "react";
 
 /**
  * Reading efficiency analytics
- * ─────────────────────────────────────────────────────────────
  * Tracks how fast the user reads under different customization settings.
- * Data is stored in localStorage until you add a backend.
- *
- * Metrics per session:
- *   - wordsRead, durationMs → words per minute
- *   - font, fontSize, surface
- *   - chatInterruptions (times user left reader for chat)
- *
- * SettingsPage reads getEfficiencyInsight() to suggest the best combo.
  */
 
 const STORAGE_KEY = "reading-nook-sessions";
