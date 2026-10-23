@@ -4,6 +4,7 @@ A reading companion for ADHD minors — search Project Gutenberg books, read wit
 
 ## Folder structure
 
+
 ```
 reading companion/
 ├── index.html              # Entry point
